@@ -1,0 +1,8 @@
+# Created by .ignore support plugin (hsz.mobi)
+/BE Training.iml
+/.idea/
+/servlet-module/target/
+/module2/module2.iml
+/servlet-module/servlet-module.iml
+/module2/target/
+servlet-module/src/main/java/com/github/training/listener/

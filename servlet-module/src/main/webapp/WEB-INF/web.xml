@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+
+    <!--<listener>
+        <listener-class>com.github.training.listener.</listenerclass>
+    </listener>-->
+    <filter>
+        <filter-name>logFilter</filter-name>
+        <filter-class>com.github.training.filters.LogFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>logFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter>
+        <filter-name>authFilter</filter-name>
+        <filter-class>com.github.training.filters.AuthorisationFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>authFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <servlet>
+        <servlet-name>helloServlet</servlet-name>
+        <servlet-path>com.github.training.HelloServlet</servlet-path>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>com.github.training.HelloServlet</servlet-name>
+        <url-pattern>/hello</url-pattern>
+    </servlet-mapping>
+</web-app>

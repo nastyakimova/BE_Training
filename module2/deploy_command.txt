@@ -1,0 +1,2 @@
+mvn deploy:deploy-file -Durl=file:///C:/Users/Anastasiia_Iakimova/.m2/repository -DrepositoryId=localRepository
+-Dfile=target/module2-1.0-SNAPSHOT.jar -DgroupId=com.github -DartifactId=module2 -Dversion=1.0 -Dpackaging=jar
