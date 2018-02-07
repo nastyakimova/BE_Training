@@ -1,4 +1,4 @@
-package com.github.training;
+package com.github.training.servlet;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

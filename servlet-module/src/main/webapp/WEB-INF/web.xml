@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app>
 
-    <!--<listener>
-        <listener-class>com.github.training.listener.</listenerclass>
-    </listener>-->
+    <listener>
+        <listener-class>com.github.training.listener.MySessionListener</listener-class>
+    </listener>
     <filter>
         <filter-name>logFilter</filter-name>
         <filter-class>com.github.training.filters.LogFilter</filter-class>
@@ -22,10 +22,10 @@
     </filter-mapping>
     <servlet>
         <servlet-name>helloServlet</servlet-name>
-        <servlet-path>com.github.training.HelloServlet</servlet-path>
+        <servlet-path>com.github.training.servlet.HelloServlet</servlet-path>
     </servlet>
     <servlet-mapping>
-        <servlet-name>com.github.training.HelloServlet</servlet-name>
+        <servlet-name>com.github.training.servlet.HelloServlet</servlet-name>
         <url-pattern>/hello</url-pattern>
     </servlet-mapping>
 </web-app>
