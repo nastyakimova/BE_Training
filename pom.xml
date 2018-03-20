@@ -11,6 +11,7 @@
     <modules>
         <module>servlet-module</module>
         <module>module2</module>
+        <module>spring</module>
     </modules>
 
     <properties>

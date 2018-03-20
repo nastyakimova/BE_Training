@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   					   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="user1" class="com.github.training.spring.User">
+        <property name="firstName" value="Ivan"/>
+        <property name="lastName" value="Ivanov"/>
+        <property name="age" value="25"/>
+    </bean>
+
+    <bean id="user2" class="com.github.training.spring.User">
+        <constructor-arg index = "0" value="Petr"/>
+        <constructor-arg index = "1" value="Petrov"/>
+        <constructor-arg index = "2" value="36"/>
+    </bean>
+
+</beans>
