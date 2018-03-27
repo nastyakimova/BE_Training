@@ -1,4 +1,4 @@
-package com.github.training.spring;
+package com.github.training.spring.ioc;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;

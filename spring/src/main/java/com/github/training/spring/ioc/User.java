@@ -1,4 +1,4 @@
-package com.github.training.spring;
+package com.github.training.spring.ioc;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
