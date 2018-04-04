@@ -3,9 +3,11 @@ package com.github.test.service;
 import com.github.test.dao.DogDao;
 import com.github.test.model.Dog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class DogServiceImpl implements DogService {
     @Autowired
     private DogDao dogDao;
@@ -27,7 +29,7 @@ public class DogServiceImpl implements DogService {
 
     @Override
     public Dog updateDog(String dogId, Dog dog) {
-        return dogDao.updateDog(dogId,dog);
+        return dogDao.updateDog(dogId, dog);
     }
 
     @Override

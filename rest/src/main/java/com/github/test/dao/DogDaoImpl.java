@@ -12,6 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DogDaoImpl implements DogDao {
     public static Map<String, Dog> DOGS = new ConcurrentHashMap<>();
 
+    public DogDaoImpl() {
+    }
+
     @Override
     public Dog createDog(Dog dog) {
         return DOGS.put(dog.getId(), dog);

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class DogController {
     @Autowired
     private DogService dogService;
 
-    @GetMapping("/dog/{id}")
+    @GetMapping(value = "/dog/{id}")
     public ResponseEntity<Dog> getDog(@PathVariable("id") String dogId) {
         logger.info("Getting dog with id " + dogId);
         Dog dog = dogService.findById(dogId);
@@ -29,14 +30,15 @@ public class DogController {
         return new ResponseEntity<>(dog, HttpStatus.OK);
     }
 
-    @GetMapping("/dog")
+    @GetMapping(value = "/dog")
     public ResponseEntity<List<Dog>> getAllDogs() {
         logger.info("Getting all dogs");
         return new ResponseEntity<>(dogService.findAllDogs(), HttpStatus.OK);
     }
 
-    @PostMapping("/dog")
-    public ResponseEntity<Void> createDog(@Valid @RequestBody Dog dog) {
+    @RequestMapping(value = "/dog", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Dog> createDog(@Valid @RequestBody Dog dog) {
         logger.info("Creating new dog: " + dog.toString());
         if (dogService.findById(dog.getId()) == null) {
             logger.info("Dog " + dog.toString() + " already exist");
@@ -46,7 +48,8 @@ public class DogController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PutMapping("/dog/{id}")
+    @PutMapping(path = "/dog/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Dog> updateDog(@PathVariable("id") String dogId, @Valid @RequestBody Dog dog) {
         logger.info("Updating dog with id " + dogId);
         Dog currentDog = dogService.findById(dogId);
