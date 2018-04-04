@@ -13,7 +13,11 @@
     <context:annotation-config/>
     <mvc:annotation-driven/>
 
-    <bean name="dogController" class="com.github.test.controller.DogController"/>
-    <bean name="dogService" class="com.github.test.service.DogServiceImpl"/>
-    <bean name="dogDao" class="com.github.test.dao.DogDaoImpl"/>
+    <bean name="dogController" class="com.github.test.controller.DogController">
+        <constructor-arg ref="dogService"/>
+    </bean>
+    <bean name="dogService" class="com.github.test.service.DogService">
+        <constructor-arg ref="dogDao"/>
+    </bean>
+    <bean name="dogDao" class="com.github.test.dao.DogDao"/>
 </beans>

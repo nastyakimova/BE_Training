@@ -1,19 +1,36 @@
 package com.github.test.service;
 
+import com.github.test.dao.DogDao;
 import com.github.test.model.Dog;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public interface DogService {
+public class DogService {
+    private DogDao dogDao;
 
-    List<Dog> findAllDogs();
+    public DogService(DogDao dogDao) {
+        this.dogDao = dogDao;
+    }
 
-    Dog findById(String dogId);
+    public List<Dog> findAllDogs() {
+        return dogDao.getAllDogs();
+    }
 
-    Dog saveDog(Dog dog);
+    public Dog findById(String dogId) {
+        return dogDao.getDog(dogId);
+    }
 
-    Dog updateDog(String dogId,Dog dog);
+    public Dog saveDog(Dog dog) {
+        return dogDao.createDog(dog);
+    }
 
-    boolean deleteDog(String dogId);
+    public Dog updateDog(String dogId, Dog dog) {
+        return dogDao.updateDog(dogId, dog);
+    }
+
+    public boolean deleteDog(String dogId) {
+        return dogDao.deleteDog(dogId);
+    }
+
 }
