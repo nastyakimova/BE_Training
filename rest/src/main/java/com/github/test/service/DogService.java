@@ -2,7 +2,6 @@ package com.github.test.service;
 
 import com.github.test.dao.DogDao;
 import com.github.test.model.Dog;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -26,7 +25,8 @@ public class DogService {
     }
 
     public Dog updateDog(String dogId, Dog dog) {
-        return dogDao.updateDog(dogId, dog);
+        dog.setId(dogId);
+        return dogDao.updateDog(dog);
     }
 
     public boolean deleteDog(String dogId) {

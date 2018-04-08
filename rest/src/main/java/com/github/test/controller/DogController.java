@@ -7,19 +7,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.PostConstruct;
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 
-@RestController("/")
+@RestController
 public class DogController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private DogService dogService;
@@ -28,7 +23,18 @@ public class DogController {
         this.dogService = dogService;
     }
 
-    @GetMapping(value = "/dog/{id}")
+    @PostConstruct
+    private void init() {
+        Dog dogTom = new Dog("Tom", LocalDate.of(2010, 5, 3), 20.1, 15.4);
+        dogService.saveDog(dogTom);
+        Dog dogSam = new Dog("Sam", LocalDate.of(2009, 5, 3), 20.1, 15.4);
+        dogService.saveDog(dogSam);
+        Dog dogJack = new Dog("Jack", LocalDate.of(2011, 5, 3), 20.1, 15.4);
+        dogService.saveDog(dogJack);
+    }
+
+
+    @GetMapping("/dog/{id}")
     public ResponseEntity<Dog> getDog(@PathVariable("id") String dogId) {
         logger.info("Getting dog with id " + dogId);
         Dog dog = dogService.findById(dogId);
@@ -38,30 +44,29 @@ public class DogController {
         return new ResponseEntity<>(dog, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/dog")
+    @GetMapping("/dog")
     public ResponseEntity<List<Dog>> getAllDogs() {
         logger.info("Getting all dogs");
         return new ResponseEntity<>(dogService.findAllDogs(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/dog", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(path = "/dog",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Dog> createDog(@Valid @RequestBody Dog dog) {
+    public ResponseEntity<Dog> createDog(final @Valid @RequestBody Dog dog) {
         logger.info("Creating new dog: " + dog.toString());
-        if (dogService.findById(dog.getId()) == null) {
+        if (dogService.findById(dog.getId()) != null) {
             logger.info("Dog " + dog.toString() + " already exist");
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        dogService.saveDog(dog);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(dogService.saveDog(dog), HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/dog/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Dog> updateDog(@PathVariable("id") String dogId, @Valid @RequestBody Dog dog) {
+    public ResponseEntity<Dog> updateDog(@PathVariable("id") String dogId, final @Valid @RequestBody Dog dog) {
         logger.info("Updating dog with id " + dogId);
-        Dog currentDog = dogService.findById(dogId);
-        if (currentDog == null) {
+        if (dogService.findById(dogId) == null) {
             logger.info("Dog with id " + dogId + " doesn't exist");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
