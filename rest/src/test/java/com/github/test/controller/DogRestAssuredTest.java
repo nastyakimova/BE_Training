@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 
 import java.time.LocalDate;
 
+import static com.github.test.TestUtils.generateString;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasSize;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
@@ -21,23 +22,24 @@ public class DogRestAssuredTest {
     @BeforeClass
     public void setup() {
         RestAssured.baseURI = "http://localhost:8080";
+        RestAssured.basePath = "/dog";
     }
 
     @Test
     public void shouldGetDogByIdTest() {
-        final Dog dog = given().when().get("/dog").jsonPath().getObject("[1]", Dog.class);
-        given().accept(ContentType.JSON).when().get("/dog/" + dog.getId()).then().statusCode(HttpStatus.OK.value());
+        final Dog dog = given().when().get().jsonPath().getObject("[1]", Dog.class);
+        given().accept(ContentType.JSON).when().get("/" + dog.getId()).then().statusCode(HttpStatus.OK.value());
     }
 
     @Test
     void shouldGetAllDogsTest() {
-        given().accept(ContentType.JSON).when().get("/dog").then().statusCode(HttpStatus.OK.value())
+        given().accept(ContentType.JSON).when().get().then().statusCode(HttpStatus.OK.value())
                 .assertThat().body("id", hasSize(3));
     }
 
     @Test
     void shouldCreateDogTest() {
-        Response response = given().contentType(ContentType.JSON).body(newDog).post("/dog");
+        Response response = given().contentType(ContentType.JSON).body(newDog).post();
         response.then().statusCode(HttpStatus.CREATED.value())
                 .contentType(ContentType.JSON);
         assertReflectionEquals(response.as(Dog.class), newDog);
@@ -45,9 +47,9 @@ public class DogRestAssuredTest {
 
     @Test
     void shouldUpdateDogTest() {
-        Dog currentDog = given().when().get("/dog").jsonPath().getObject("[1]", Dog.class);
+        Dog currentDog = given().when().get().jsonPath().getObject("[1]", Dog.class);
         currentDog.setName("Scooby");
-        Response response = given().contentType(ContentType.JSON).body(currentDog).put("/dog/" + currentDog.getId());
+        Response response = given().contentType(ContentType.JSON).body(currentDog).put("/" + currentDog.getId());
         response.then().statusCode(HttpStatus.OK.value())
                 .contentType(ContentType.JSON);
         assertReflectionEquals(response.as(Dog.class), currentDog);
@@ -56,8 +58,15 @@ public class DogRestAssuredTest {
 
     @Test
     void shouldDeleteExistingDog() {
-        Dog currentDog = given().when().get("/dog").jsonPath().getObject("[1]", Dog.class);
-        given().delete("/dog/" + currentDog.getId()).then().statusCode(HttpStatus.NO_CONTENT.value());
-        given().delete("/dog/" + currentDog.getId()).then().statusCode(HttpStatus.NOT_FOUND.value());
+        Dog currentDog = given().when().get("/").jsonPath().getObject("[1]", Dog.class);
+        given().delete("/" + currentDog.getId()).then().statusCode(HttpStatus.NO_CONTENT.value());
+        given().delete("/" + currentDog.getId()).then().statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void shouldFailOnValidation() {
+        Dog invalidDog = new Dog(generateString(101), LocalDate.now().plusDays(10), 0, 0);
+        given().contentType(ContentType.JSON).body(invalidDog).post()
+                .then().statusCode(HttpStatus.BAD_REQUEST.value());
     }
 }

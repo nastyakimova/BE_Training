@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.Min;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
@@ -24,25 +24,26 @@ import java.util.UUID;
 public class Dog {
     private String id = UUID.randomUUID().toString();
 
+    @NotNull
     @Size(min = 1, max = 100, message = "Dog's name must be between 1 and 100 characters")
     private String name;
 
-    @Past
-    @NotNull
+    @Past(message = "Date of birth can't be in future or now")
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 
-    @Min(1)
+    @DecimalMin(value = "0", inclusive = false, message = "Dog's weight must be greater than 0")
     private double weight;
 
-    @Min(1)
+    @DecimalMin(value = "0", inclusive = false, message = "Dog's height must be greater than 0")
     private double height;
 
-    public Dog(@Size(min = 1, max = 100, message = "Dog's name must be between 1 and 100 characters") String name,
-               @Past @NotNull LocalDate birthDate, @NotNull @Min(1) double weight,
-               @NotNull @Min(1) double height) {
+    public Dog(String name,
+               LocalDate birthDate,
+               double weight,
+               double height) {
         this.name = name;
         this.birthDate = birthDate;
         this.weight = weight;
