@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DogDao {
+public class InMemoryDogDao {
     private static Map<String, Dog> DOGS = new ConcurrentHashMap<>();
 
     public Dog createDog(Dog dog) {

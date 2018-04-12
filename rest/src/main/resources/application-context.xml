@@ -16,5 +16,5 @@
 
     <bean name="dogController" class="com.github.test.controller.DogController"/>
     <bean name="dogService" class="com.github.test.service.DogService"/>
-    <bean name="dogDao" class="com.github.test.dao.DogDao"/>
+    <bean name="dogDao" class="com.github.test.dao.InMemoryDogDao"/>
 </beans>

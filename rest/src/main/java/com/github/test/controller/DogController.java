@@ -7,11 +7,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -25,12 +32,16 @@ public class DogController {
 
     @PostConstruct
     private void init() {
+        for (Dog dog : getDogs()) {
+            dogService.saveDog(dog);
+        }
+    }
+
+    private List<Dog> getDogs() {
         Dog dogTom = new Dog("Tom", LocalDate.of(2010, 5, 3), 20.1, 15.4);
-        dogService.saveDog(dogTom);
         Dog dogSam = new Dog("Sam", LocalDate.of(2009, 5, 3), 20.1, 15.4);
-        dogService.saveDog(dogSam);
         Dog dogJack = new Dog("Jack", LocalDate.of(2011, 5, 3), 20.1, 15.4);
-        dogService.saveDog(dogJack);
+        return Arrays.asList(dogTom, dogSam, dogJack);
     }
 
 
