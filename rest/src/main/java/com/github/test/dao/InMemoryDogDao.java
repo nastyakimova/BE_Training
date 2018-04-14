@@ -7,27 +7,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class InMemoryDogDao {
+public class InMemoryDogDao implements DogDao {
     private static Map<String, Dog> DOGS = new ConcurrentHashMap<>();
 
+    @Override
     public Dog createDog(Dog dog) {
         DOGS.put(dog.getId(), dog);
         return dog;
     }
 
+    @Override
     public Dog getDog(String id) {
         return DOGS.get(id);
     }
 
+    @Override
     public List<Dog> getAllDogs() {
         return new ArrayList<>(DOGS.values());
     }
 
+    @Override
     public Dog updateDog(Dog dog) {
         DOGS.put(dog.getId(), dog);
         return dog;
     }
 
+    @Override
     public boolean deleteDog(String id) {
         return DOGS.remove(id) == null;
     }

@@ -1,14 +1,14 @@
 package com.github.test.service;
 
-import com.github.test.dao.InMemoryDogDao;
+import com.github.test.dao.DogDao;
 import com.github.test.model.Dog;
 
 import java.util.List;
 
 public class DogService {
-    private InMemoryDogDao dogDao;
+    private DogDao dogDao;
 
-    public DogService(InMemoryDogDao dogDao) {
+    public DogService(DogDao dogDao) {
         this.dogDao = dogDao;
     }
 

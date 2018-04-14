@@ -3,7 +3,9 @@ package com.github.test.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.test.model.Dog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -25,6 +27,7 @@ import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEqua
 
 @ContextConfiguration("classpath:/application-context.xml")
 @WebAppConfiguration
+@ActiveProfiles("h2")
 public class DogMockMvcTest extends AbstractTestNGSpringContextTests {
     private MockMvc mockMvc;
 
