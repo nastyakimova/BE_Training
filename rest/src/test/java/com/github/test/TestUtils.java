@@ -1,18 +1,21 @@
 package com.github.test;
 
-import java.util.Random;
+import com.github.test.model.Dog;
+
+import static io.qala.datagen.RandomDate.between;
+import static io.qala.datagen.RandomDate.daysAgo;
+import static io.qala.datagen.RandomDate.yearsAgo;
+import static io.qala.datagen.RandomShortApi.alphanumeric;
+import static io.qala.datagen.RandomShortApi.nullOr;
+import static io.qala.datagen.RandomShortApi.positiveDouble;
 
 public class TestUtils {
-    private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    public static String generateString(int length) {
-        Random random = new Random();
-        StringBuilder builder = new StringBuilder(length);
-
-        for (int i = 0; i < length; i++) {
-            builder.append(ALPHABET.charAt(random.nextInt(ALPHABET.length())));
-        }
-
-        return builder.toString();
+    public static Dog createRandomDog() {
+        Dog dog = new Dog();
+        dog.setName(alphanumeric(1, 100));
+        dog.setBirthDate(nullOr(between(yearsAgo(20), daysAgo(1)).localDate()));
+        dog.setWeight(positiveDouble());
+        dog.setHeight(positiveDouble());
+        return dog;
     }
 }

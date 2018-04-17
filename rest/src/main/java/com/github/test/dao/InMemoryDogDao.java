@@ -17,7 +17,7 @@ public class InMemoryDogDao implements DogDao {
     }
 
     @Override
-    public Dog getDog(String id) {
+    public Dog getDogById(String id) {
         return DOGS.get(id);
     }
 

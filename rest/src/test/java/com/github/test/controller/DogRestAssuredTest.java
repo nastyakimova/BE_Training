@@ -10,14 +10,13 @@ import org.testng.annotations.Test;
 
 import java.time.LocalDate;
 
-import static com.github.test.TestUtils.generateString;
+import static com.github.test.TestUtils.createRandomDog;
+import static io.qala.datagen.RandomShortApi.alphanumeric;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasSize;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
 public class DogRestAssuredTest {
-
-    private final Dog newDog = new Dog("Rex", LocalDate.of(2001, 12, 1), 12.5, 14.1);
 
     @BeforeClass
     public void setup() {
@@ -39,10 +38,11 @@ public class DogRestAssuredTest {
 
     @Test
     void shouldCreateDogTest() {
-        Response response = given().contentType(ContentType.JSON).body(newDog).post();
+        Dog randomDog = createRandomDog();
+        Response response = given().contentType(ContentType.JSON).body(randomDog).post();
         response.then().statusCode(HttpStatus.CREATED.value())
                 .contentType(ContentType.JSON);
-        assertReflectionEquals(response.as(Dog.class), newDog);
+        assertReflectionEquals(response.as(Dog.class), randomDog);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class DogRestAssuredTest {
 
     @Test
     void shouldFailOnValidation() {
-        Dog invalidDog = new Dog(generateString(101), LocalDate.now().plusDays(10), 0, 0);
+        Dog invalidDog = new Dog(alphanumeric(101), LocalDate.now().plusDays(10), 0, 0);
         given().contentType(ContentType.JSON).body(invalidDog).post()
                 .then().statusCode(HttpStatus.BAD_REQUEST.value());
     }

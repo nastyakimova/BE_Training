@@ -7,7 +7,7 @@ import java.util.List;
 public interface DogDao {
     Dog createDog(Dog dog);
 
-    Dog getDog(String id);
+    Dog getDogById(String id);
 
     List<Dog> getAllDogs();
 

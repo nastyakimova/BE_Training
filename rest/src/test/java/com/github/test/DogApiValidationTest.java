@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Set;
 
+import static io.qala.datagen.RandomShortApi.alphanumeric;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -40,7 +41,7 @@ public class DogApiValidationTest {
 
     @Test
     public void shouldCheckViolatedNameMoreThan100Symbols() {
-        Dog longNameDog = new Dog(TestUtils.generateString(101), VALID_DATE, VALID_WEIGHT, VALID_HEIGHT);
+        Dog longNameDog = new Dog(alphanumeric(101), VALID_DATE, VALID_WEIGHT, VALID_HEIGHT);
         Set<ConstraintViolation<Dog>> violations = validator.validate(longNameDog);
         assertThat(violations, hasSize(1));
         assertThat(violations.iterator().next().getMessage(), is("Dog's name must be between 1 and 100 characters"));

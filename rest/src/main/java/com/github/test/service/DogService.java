@@ -17,7 +17,7 @@ public class DogService {
     }
 
     public Dog findById(String dogId) {
-        return dogDao.getDog(dogId);
+        return dogDao.getDogById(dogId);
     }
 
     public Dog saveDog(Dog dog) {

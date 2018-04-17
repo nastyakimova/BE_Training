@@ -16,6 +16,7 @@
         <lombok.version>1.16.16</lombok.version>
         <rest-assured.version>2.9.0</rest-assured.version>
         <jackson.version>2.9.2</jackson.version>
+        <datagen.version>2.2.1</datagen.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -78,6 +79,11 @@
             <artifactId>h2</artifactId>
             <version>1.4.197</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.qala.datagen</groupId>
+            <artifactId>qala-datagen-java8types</artifactId>
+            <version>${datagen.version}</version>
         </dependency>
 
         <!--Test-->

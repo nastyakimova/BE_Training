@@ -21,6 +21,6 @@
         <bean name="dogDao" class="com.github.test.dao.InMemoryDogDao"/>
     </beans>
     <beans profile="h2">
-        <bean id="dogDao" class="com.github.test.dao.JdbcDogDao"/>
+        <bean name="dogDao" class="com.github.test.dao.JdbcDogDao"/>
     </beans>
 </beans>
