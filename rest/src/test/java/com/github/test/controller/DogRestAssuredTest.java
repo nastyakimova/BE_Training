@@ -8,10 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.time.LocalDate;
-
+import static com.github.test.TestUtils.createInvalidDog;
 import static com.github.test.TestUtils.createRandomDog;
-import static io.qala.datagen.RandomShortApi.alphanumeric;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasSize;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
@@ -65,7 +63,7 @@ public class DogRestAssuredTest {
 
     @Test
     void shouldFailOnValidation() {
-        Dog invalidDog = new Dog(alphanumeric(101), LocalDate.now().plusDays(10), 0, 0);
+        Dog invalidDog = createInvalidDog();
         given().contentType(ContentType.JSON).body(invalidDog).post()
                 .then().statusCode(HttpStatus.BAD_REQUEST.value());
     }

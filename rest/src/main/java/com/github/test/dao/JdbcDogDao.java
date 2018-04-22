@@ -2,13 +2,8 @@ package com.github.test.dao;
 
 import com.github.test.model.Dog;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,104 +11,85 @@ import java.util.List;
 public class JdbcDogDao implements DogDao {
     private DataSource dataSource;
 
-    public JdbcDogDao() {
-    }
-
     public JdbcDogDao(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    @PostConstruct
-    private void init() {
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            String createTableQuery = "create table DOGS (\n" +
-                    " id varchar(64) NOT NULL,\n" +
-                    " name varchar(100) NOT NULL,\n" +
-                    " birthdate DATE,\n" +
-                    " weight DOUBLE PRECISION NOT NULL,\n" +
-                    " height DOUBLE PRECISION NOT NULL,\n" +
-                    " PRIMARY KEY(id))";
-            statement.execute(createTableQuery);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public Dog createDog(Dog dog) {
-        Dog createdDog = null;
+        String insertQuery = "INSERT INTO DOGS(id, name, birthdate, weight, height) VALUES(?,?,?,?,?)";
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            String insertQuery = String.format("INSERT INTO DOGS (id, name, birthdate, weight, height) " +
-                            "VALUES('%s', '%s', %s, %f, %f);", dog.getId(), dog.getName(),
-                    getDateAsString(dog.getBirthDate()), dog.getWeight(), dog.getHeight());
-            createdDog = statement.executeUpdate(insertQuery) == 1 ? dog : null;
+             PreparedStatement ps = connection.prepareStatement(insertQuery)) {
+            ps.setString(1, dog.getId());
+            ps.setString(2, dog.getName());
+            ps.setObject(3, dog.getBirthDate());
+            ps.setDouble(4, dog.getWeight());
+            ps.setDouble(5, dog.getHeight());
+            return ps.executeUpdate() == 1 ? dog : null;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("An error occured while creating dog: " + e.getMessage());
         }
-        return createdDog;
     }
 
     @Override
     public Dog getDogById(String id) {
-        Dog dog = null;
+        String selectRowQuery = "select * from DOGS where id=?";
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.setMaxRows(1);
-            String selectRowQuery = "select * from DOGS where id= '" + id + "'";
-            ResultSet rs = statement.executeQuery(selectRowQuery);
-            dog = (rs.next()) ? initDogFromResultSet(rs) : null;
-            rs.close();
+             PreparedStatement ps = connection.prepareStatement(selectRowQuery)) {
+            ps.setMaxRows(1);
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            return (rs.next()) ? initDogFromResultSet(rs) : null;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("An error occured while getting dog by id: " + e.getMessage());
         }
-        return dog;
+
     }
 
     @Override
     public List<Dog> getAllDogs() {
         List<Dog> dogs = new ArrayList<>();
+        String selectAllQuery = "select * from DOGS";
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            String selectAllQuery = "select * from DOGS";
-            ResultSet rs = statement.executeQuery(selectAllQuery);
+             PreparedStatement ps = connection.prepareStatement(selectAllQuery);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 dogs.add(initDogFromResultSet(rs));
             }
-            rs.close();
+            return dogs;
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            throw new RuntimeException("An error occured while getting list of all dogs: " + ex.getMessage());
         }
-        return dogs;
     }
 
     @Override
     public Dog updateDog(Dog dog) {
-        Dog updatedDog = null;
+        String updateQuery = "UPDATE DOGS SET name = ?, birthdate= ?, weight= ?, height= ? "
+                + "WHERE ID = ?;";
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            String updateQuery = String.format("UPDATE DOGS SET name = '%s', birthdate= %s, weight= %f, height= %f " +
-                            "WHERE ID = '%s';", dog.getName(), getDateAsString(dog.getBirthDate()), dog.getWeight(),
-                    dog.getHeight(), dog.getId());
-            updatedDog = statement.executeUpdate(updateQuery) == 1 ? dog : null;
+             PreparedStatement ps = connection.prepareStatement(updateQuery)) {
+            ps.setString(1, dog.getName());
+            ps.setObject(2, dog.getBirthDate());
+            ps.setDouble(3, dog.getWeight());
+            ps.setDouble(4, dog.getHeight());
+            ps.setString(5, dog.getId());
+
+            return ps.executeUpdate() == 1 ? dog : null;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("An error occured while updating dog: " + e.getMessage());
         }
-        return updatedDog;
     }
 
     @Override
     public boolean deleteDog(String id) {
-        boolean result = false;
+        String deleteQuery = "delete from DOGS where id= ?";
         try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            String deleteQuery = "delete from DOGS where id='" + id + "'";
-            result = statement.execute(deleteQuery);
+             PreparedStatement ps = connection.prepareStatement(deleteQuery)) {
+            ps.setString(1, id);
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("An error occured while deleting dog: " + e.getMessage());
         }
-        return result;
     }
 
     private Dog initDogFromResultSet(ResultSet rs) throws SQLException {
@@ -124,10 +100,6 @@ public class JdbcDogDao implements DogDao {
         double weight = rs.getDouble("weight");
         double height = rs.getDouble("height");
         return new Dog(id, name, birthDate, weight, height);
-    }
-
-    private String getDateAsString(LocalDate date) {
-        return date != null ? "'" + date + "'" : "NULL";
     }
 }
 

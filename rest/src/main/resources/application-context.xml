@@ -3,24 +3,29 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd"
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd"
        default-autowire="constructor">
 
     <context:annotation-config/>
     <mvc:annotation-driven/>
 
-    <import resource="persistence-context.xml"/>
     <bean name="dogController" class="com.github.test.controller.DogController"/>
     <bean name="dogService" class="com.github.test.service.DogService"/>
     <beans profile="inmemory">
         <bean name="dogDao" class="com.github.test.dao.InMemoryDogDao"/>
     </beans>
-    <beans profile="h2">
+    <beans profile="default,h2">
         <bean name="dogDao" class="com.github.test.dao.JdbcDogDao"/>
+        <jdbc:embedded-database id="dataSource" type="H2">
+            <jdbc:script location="classpath:h2/create-db.sql"/>
+            <jdbc:script location="classpath:h2/insert-data.sql"/>
+        </jdbc:embedded-database>
     </beans>
+
 </beans>

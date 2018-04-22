@@ -7,18 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -29,21 +20,6 @@ public class DogController {
     public DogController(DogService dogService) {
         this.dogService = dogService;
     }
-
-    @PostConstruct
-    private void init() {
-        for (Dog dog : getDogs()) {
-            dogService.saveDog(dog);
-        }
-    }
-
-    private List<Dog> getDogs() {
-        Dog dogTom = new Dog("Tom", LocalDate.of(2010, 5, 3), 20.1, 15.4);
-        Dog dogSam = new Dog("Sam", LocalDate.of(2009, 5, 3), 20.1, 15.4);
-        Dog dogJack = new Dog("Jack", LocalDate.of(2011, 5, 3), 20.1, 15.4);
-        return Arrays.asList(dogTom, dogSam, dogJack);
-    }
-
 
     @GetMapping("/dog/{id}")
     public ResponseEntity<Dog> getDog(@PathVariable("id") String dogId) {
@@ -77,22 +53,24 @@ public class DogController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Dog> updateDog(@PathVariable("id") String dogId, final @Valid @RequestBody Dog dog) {
         logger.info("Updating dog with id " + dogId);
-        if (dogService.findById(dogId) == null) {
+        Dog updatedDog = dogService.updateDog(dogId, dog);
+        if (updatedDog == null) {
             logger.info("Dog with id " + dogId + " doesn't exist");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(dogService.updateDog(dogId, dog), HttpStatus.OK);
+        return new ResponseEntity<>(updatedDog, HttpStatus.OK);
     }
 
     @DeleteMapping("/dog/{id}")
     public ResponseEntity<Dog> deleteDog(@PathVariable("id") String dogId) {
         logger.info("Deleting dog with id " + dogId);
-        Dog currentDog = dogService.findById(dogId);
-        if (currentDog == null) {
+        if (!dogService.deleteDog(dogId)) {
             logger.info("Dog with id " + dogId + " not found");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        dogService.deleteDog(dogId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+
     }
 }
