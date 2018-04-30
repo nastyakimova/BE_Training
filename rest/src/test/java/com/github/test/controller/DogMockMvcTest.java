@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.test.model.Dog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -23,7 +22,10 @@ import java.util.List;
 import static com.github.test.TestUtils.createRandomDog;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.testng.Assert.assertTrue;
@@ -31,13 +33,11 @@ import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEqua
 
 @ContextConfiguration("classpath:/application-context.xml")
 @WebAppConfiguration
-@ActiveProfiles("h2")
 public class DogMockMvcTest extends AbstractTestNGSpringContextTests {
     private MockMvc mockMvc;
 
     @Autowired
     private WebApplicationContext wac;
-    private EmbeddedDatabase db;
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final String URL = "/dog";
