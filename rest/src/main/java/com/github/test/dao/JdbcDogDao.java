@@ -2,6 +2,7 @@ package com.github.test.dao;
 
 import com.github.test.model.Dog;
 
+import javax.annotation.PostConstruct;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,12 +15,17 @@ public class JdbcDogDao implements DogDao {
         this.connectionHolder = connectionHolder;
     }
 
+    @PostConstruct
+    public void shutdown() {
+        connectionHolder.close();
+    }
+
     @Override
     public Dog createDog(Dog dog) {
         int rowsCreated;
         String insertQuery = "INSERT INTO DOGS(id, name, birthdate, weight, height) VALUES(?,?,?,?,?)";
-        try (Connection connection = connectionHolder.getConnection();
-             PreparedStatement ps = connection.prepareStatement(insertQuery)) {
+        Connection connection = connectionHolder.getConnection();
+        try (PreparedStatement ps = connection.prepareStatement(insertQuery)) {
             ps.setString(1, dog.getId());
             ps.setString(2, dog.getName());
             ps.setObject(3, dog.getBirthDate());
@@ -29,9 +35,7 @@ public class JdbcDogDao implements DogDao {
             connectionHolder.commit();
         } catch (SQLException e) {
             connectionHolder.rollback();
-            throw new RuntimeException("An error occured while creating dog: " + e.getMessage());
-        } finally {
-            connectionHolder.close();
+            throw new RuntimeException("An error occurred while creating dog: " + e.getMessage());
         }
         return rowsCreated == 1 ? dog : null;
     }
@@ -40,8 +44,8 @@ public class JdbcDogDao implements DogDao {
     public Dog getDogById(String id) {
         Dog dog;
         String selectRowQuery = "select * from DOGS where id=?";
-        try (Connection connection = connectionHolder.getConnection();
-             PreparedStatement ps = connection.prepareStatement(selectRowQuery)) {
+        Connection connection = connectionHolder.getConnection();
+        try (PreparedStatement ps = connection.prepareStatement(selectRowQuery)) {
             ps.setMaxRows(1);
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
@@ -49,9 +53,7 @@ public class JdbcDogDao implements DogDao {
             connectionHolder.commit();
         } catch (SQLException e) {
             connectionHolder.rollback();
-            throw new RuntimeException("An error occured while getting dog by id: " + e.getMessage());
-        } finally {
-            connectionHolder.close();
+            throw new RuntimeException("An error occurred while getting dog by id: " + e.getMessage());
         }
         return dog;
     }
@@ -60,8 +62,8 @@ public class JdbcDogDao implements DogDao {
     public List<Dog> getAllDogs() {
         List<Dog> dogs = new ArrayList<>();
         String selectAllQuery = "select * from DOGS";
-        try (Connection connection = connectionHolder.getConnection();
-             PreparedStatement ps = connection.prepareStatement(selectAllQuery);
+        Connection connection = connectionHolder.getConnection();
+        try (PreparedStatement ps = connection.prepareStatement(selectAllQuery);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 dogs.add(initDogFromResultSet(rs));
@@ -69,9 +71,7 @@ public class JdbcDogDao implements DogDao {
             connectionHolder.commit();
         } catch (SQLException ex) {
             connectionHolder.rollback();
-            throw new RuntimeException("An error occured while getting list of all dogs: " + ex.getMessage());
-        } finally {
-            connectionHolder.close();
+            throw new RuntimeException("An error occurred while getting list of all dogs: " + ex.getMessage());
         }
         return dogs;
     }
@@ -81,8 +81,8 @@ public class JdbcDogDao implements DogDao {
         int rowsUpdated;
         String updateQuery = "UPDATE DOGS SET name = ?, birthdate= ?, weight= ?, height= ? "
                 + "WHERE ID = ?;";
-        try (Connection connection = connectionHolder.getConnection();
-             PreparedStatement ps = connection.prepareStatement(updateQuery)) {
+        Connection connection = connectionHolder.getConnection();
+        try (PreparedStatement ps = connection.prepareStatement(updateQuery)) {
             ps.setString(1, dog.getName());
             ps.setObject(2, dog.getBirthDate());
             ps.setDouble(3, dog.getWeight());
@@ -92,9 +92,7 @@ public class JdbcDogDao implements DogDao {
             connectionHolder.commit();
         } catch (SQLException e) {
             connectionHolder.rollback();
-            throw new RuntimeException("An error occured while updating dog: " + e.getMessage());
-        } finally {
-            connectionHolder.close();
+            throw new RuntimeException("An error occurred while updating dog: " + e.getMessage());
         }
         return rowsUpdated == 1 ? dog : null;
     }
@@ -103,16 +101,14 @@ public class JdbcDogDao implements DogDao {
     public boolean deleteDog(String id) {
         int rowsDeleted;
         String deleteQuery = "delete from DOGS where id= ?";
-        try (Connection connection = connectionHolder.getConnection();
-             PreparedStatement ps = connection.prepareStatement(deleteQuery)) {
+        Connection connection = connectionHolder.getConnection();
+        try (PreparedStatement ps = connection.prepareStatement(deleteQuery)) {
             ps.setString(1, id);
             rowsDeleted = ps.executeUpdate();
             connectionHolder.commit();
         } catch (SQLException e) {
             connectionHolder.rollback();
-            throw new RuntimeException("An error occured while deleting dog: " + e.getMessage());
-        } finally {
-            connectionHolder.close();
+            throw new RuntimeException("An error occurred while deleting dog: " + e.getMessage());
         }
         return rowsDeleted > 0;
     }

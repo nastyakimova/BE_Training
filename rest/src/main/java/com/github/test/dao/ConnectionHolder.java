@@ -5,16 +5,22 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class ConnectionHolder {
-    private Connection connection = null;
+    private Connection connection;
     private DataSource dataSource;
 
     public ConnectionHolder(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    Connection getConnection() throws SQLException {
-        connection = dataSource.getConnection();
-        connection.setAutoCommit(false);
+    Connection getConnection() {
+        if (connection == null) {
+            try {
+                connection = dataSource.getConnection();
+                connection.setAutoCommit(false);
+            } catch (SQLException e) {
+                throw new RuntimeException();
+            }
+        }
         return connection;
     }
 
