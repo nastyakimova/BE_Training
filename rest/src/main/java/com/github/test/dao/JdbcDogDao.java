@@ -2,22 +2,16 @@ package com.github.test.dao;
 
 import com.github.test.model.Dog;
 
-import javax.annotation.PostConstruct;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcDogDao implements DogDao {
-    private ConnectionHolder connectionHolder;
+    JdbcConnectionHolder connectionHolder;
 
-    public JdbcDogDao(ConnectionHolder connectionHolder) {
+    public JdbcDogDao(JdbcConnectionHolder connectionHolder) {
         this.connectionHolder = connectionHolder;
-    }
-
-    @PostConstruct
-    public void shutdown() {
-        connectionHolder.close();
     }
 
     @Override
@@ -32,9 +26,7 @@ public class JdbcDogDao implements DogDao {
             ps.setDouble(4, dog.getWeight());
             ps.setDouble(5, dog.getHeight());
             rowsCreated = ps.executeUpdate();
-            connectionHolder.commit();
         } catch (SQLException e) {
-            connectionHolder.rollback();
             throw new RuntimeException("An error occurred while creating dog: " + e.getMessage());
         }
         return rowsCreated == 1 ? dog : null;
@@ -50,9 +42,7 @@ public class JdbcDogDao implements DogDao {
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
             dog = (rs.next()) ? initDogFromResultSet(rs) : null;
-            connectionHolder.commit();
         } catch (SQLException e) {
-            connectionHolder.rollback();
             throw new RuntimeException("An error occurred while getting dog by id: " + e.getMessage());
         }
         return dog;
@@ -68,9 +58,7 @@ public class JdbcDogDao implements DogDao {
             while (rs.next()) {
                 dogs.add(initDogFromResultSet(rs));
             }
-            connectionHolder.commit();
         } catch (SQLException ex) {
-            connectionHolder.rollback();
             throw new RuntimeException("An error occurred while getting list of all dogs: " + ex.getMessage());
         }
         return dogs;
@@ -89,9 +77,7 @@ public class JdbcDogDao implements DogDao {
             ps.setDouble(4, dog.getHeight());
             ps.setString(5, dog.getId());
             rowsUpdated = ps.executeUpdate();
-            connectionHolder.commit();
         } catch (SQLException e) {
-            connectionHolder.rollback();
             throw new RuntimeException("An error occurred while updating dog: " + e.getMessage());
         }
         return rowsUpdated == 1 ? dog : null;
@@ -105,9 +91,7 @@ public class JdbcDogDao implements DogDao {
         try (PreparedStatement ps = connection.prepareStatement(deleteQuery)) {
             ps.setString(1, id);
             rowsDeleted = ps.executeUpdate();
-            connectionHolder.commit();
         } catch (SQLException e) {
-            connectionHolder.rollback();
             throw new RuntimeException("An error occurred while deleting dog: " + e.getMessage());
         }
         return rowsDeleted > 0;

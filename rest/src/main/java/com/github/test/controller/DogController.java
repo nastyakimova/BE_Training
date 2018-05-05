@@ -1,7 +1,7 @@
 package com.github.test.controller;
 
 import com.github.test.model.Dog;
-import com.github.test.service.DogService;
+import com.github.test.service.TransactionalDogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,9 +15,9 @@ import java.util.List;
 @RestController
 public class DogController {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private DogService dogService;
+    private TransactionalDogService dogService;
 
-    public DogController(DogService dogService) {
+    public DogController(TransactionalDogService dogService) {
         this.dogService = dogService;
     }
 

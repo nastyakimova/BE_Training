@@ -4,19 +4,21 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class ConnectionHolder {
-    private Connection connection;
+public class JdbcConnectionHolder {
+    private ThreadLocal<Connection> connectionThreadLocal = new ThreadLocal<>();
     private DataSource dataSource;
 
-    public ConnectionHolder(DataSource dataSource) {
+    public JdbcConnectionHolder(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    Connection getConnection() {
+    public Connection getConnection() {
+        Connection connection = connectionThreadLocal.get();
         if (connection == null) {
             try {
                 connection = dataSource.getConnection();
                 connection.setAutoCommit(false);
+                connectionThreadLocal.set(connection);
             } catch (SQLException e) {
                 throw new RuntimeException();
             }
@@ -24,7 +26,8 @@ public class ConnectionHolder {
         return connection;
     }
 
-    void rollback() {
+    public void rollback() {
+        Connection connection = getConnection();
         try {
             connection.rollback();
         } catch (SQLException ex) {
@@ -32,7 +35,8 @@ public class ConnectionHolder {
         }
     }
 
-    void commit() {
+    public void commit() {
+        Connection connection = getConnection();
         try {
             connection.commit();
         } catch (SQLException ex) {
@@ -40,10 +44,12 @@ public class ConnectionHolder {
         }
     }
 
-    void close() {
+    public void close() {
+        Connection connection = connectionThreadLocal.get();
         if (connection != null) {
             try {
                 connection.close();
+                connectionThreadLocal.set(null);
             } catch (SQLException ex) {
                 throw new RuntimeException();
             }
