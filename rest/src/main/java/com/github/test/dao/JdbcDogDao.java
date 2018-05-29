@@ -1,110 +1,83 @@
 package com.github.test.dao;
 
 import com.github.test.model.Dog;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.lang.Nullable;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcDogDao implements DogDao {
-    JdbcConnectionHolder connectionHolder;
+    private JdbcTemplate jdbcTemplate;
+    private RowMapper<Dog> rowMapper = new DogRowMapper();
 
-    public JdbcDogDao(JdbcConnectionHolder connectionHolder) {
-        this.connectionHolder = connectionHolder;
+    public JdbcDogDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Dog createDog(Dog dog) {
-        int rowsCreated;
         String insertQuery = "INSERT INTO DOGS(id, name, birthdate, weight, height) VALUES(?,?,?,?,?)";
-        Connection connection = connectionHolder.getConnection();
-        try (PreparedStatement ps = connection.prepareStatement(insertQuery)) {
+        int rowsCreated = jdbcTemplate.update(insertQuery, ps -> {
             ps.setString(1, dog.getId());
             ps.setString(2, dog.getName());
             ps.setObject(3, dog.getBirthDate());
             ps.setDouble(4, dog.getWeight());
             ps.setDouble(5, dog.getHeight());
-            rowsCreated = ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("An error occurred while creating dog: " + e.getMessage());
-        }
+        });
         return rowsCreated == 1 ? dog : null;
     }
 
     @Override
     public Dog getDogById(String id) {
-        Dog dog;
-        String selectRowQuery = "select * from DOGS where id=?";
-        Connection connection = connectionHolder.getConnection();
-        try (PreparedStatement ps = connection.prepareStatement(selectRowQuery)) {
-            ps.setMaxRows(1);
-            ps.setString(1, id);
-            ResultSet rs = ps.executeQuery();
-            dog = (rs.next()) ? initDogFromResultSet(rs) : null;
-        } catch (SQLException e) {
-            throw new RuntimeException("An error occurred while getting dog by id: " + e.getMessage());
-        }
-        return dog;
+        String selectRowQuery = "SELECT * FROM DOGS WHERE id=?";
+        List<Dog> result = jdbcTemplate.query(selectRowQuery, ps -> ps.setString(1, id), rowMapper);
+        return (!result.isEmpty()) ? result.get(0) : null;
     }
 
     @Override
     public List<Dog> getAllDogs() {
-        List<Dog> dogs = new ArrayList<>();
-        String selectAllQuery = "select * from DOGS";
-        Connection connection = connectionHolder.getConnection();
-        try (PreparedStatement ps = connection.prepareStatement(selectAllQuery);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                dogs.add(initDogFromResultSet(rs));
-            }
-        } catch (SQLException ex) {
-            throw new RuntimeException("An error occurred while getting list of all dogs: " + ex.getMessage());
-        }
-        return dogs;
+        String selectAllQuery = "SELECT * FROM DOGS";
+        return jdbcTemplate.query(selectAllQuery, rowMapper);
     }
 
     @Override
     public Dog updateDog(Dog dog) {
-        int rowsUpdated;
         String updateQuery = "UPDATE DOGS SET name = ?, birthdate= ?, weight= ?, height= ? "
                 + "WHERE ID = ?;";
-        Connection connection = connectionHolder.getConnection();
-        try (PreparedStatement ps = connection.prepareStatement(updateQuery)) {
+        int rowsUpdated = jdbcTemplate.update(updateQuery, ps -> {
             ps.setString(1, dog.getName());
             ps.setObject(2, dog.getBirthDate());
             ps.setDouble(3, dog.getWeight());
             ps.setDouble(4, dog.getHeight());
             ps.setString(5, dog.getId());
-            rowsUpdated = ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("An error occurred while updating dog: " + e.getMessage());
-        }
+        });
         return rowsUpdated == 1 ? dog : null;
     }
 
     @Override
     public boolean deleteDog(String id) {
-        int rowsDeleted;
-        String deleteQuery = "delete from DOGS where id= ?";
-        Connection connection = connectionHolder.getConnection();
-        try (PreparedStatement ps = connection.prepareStatement(deleteQuery)) {
-            ps.setString(1, id);
-            rowsDeleted = ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("An error occurred while deleting dog: " + e.getMessage());
-        }
+        String deleteQuery = "DELETE FROM DOGS WHERE id= ?";
+        int rowsDeleted = jdbcTemplate.update(deleteQuery, ps -> ps.setString(1, id));
         return rowsDeleted > 0;
     }
 
-    private Dog initDogFromResultSet(ResultSet rs) throws SQLException {
-        String id = rs.getString("id");
-        String name = rs.getString("name");
-        Date date = rs.getDate("birthdate");
-        LocalDate birthDate = (date != null) ? date.toLocalDate() : null;
-        double weight = rs.getDouble("weight");
-        double height = rs.getDouble("height");
-        return new Dog(id, name, birthDate, weight, height);
+    private static class DogRowMapper implements RowMapper<Dog> {
+        @Nullable
+        @Override
+        public Dog mapRow(ResultSet rs, int rowNum) throws SQLException {
+            String id = rs.getString("id");
+            String name = rs.getString("name");
+            Date date = rs.getDate("birthdate");
+            LocalDate birthDate = (date != null) ? date.toLocalDate() : null;
+            double weight = rs.getDouble("weight");
+            double height = rs.getDouble("height");
+            return new Dog(id, name, birthDate, weight, height);
+        }
     }
 }
 

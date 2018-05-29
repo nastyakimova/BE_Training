@@ -3,7 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/mvc
@@ -11,7 +11,9 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/aop
-        http://www.springframework.org/schema/aop/spring-aop.xsd"
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd"
        default-autowire="constructor">
 
     <context:annotation-config/>
@@ -20,20 +22,10 @@
     <!--by setting proxy-target-class="true" Spring will be using CGLIB for proxies, instead of jdk proxies.-->
     <aop:aspectj-autoproxy proxy-target-class="true"/>
 
+    <tx:annotation-driven transaction-manager="txManager"/>
     <bean name="dogController" class="com.github.test.controller.DogController"/>
-    <!--<bean id="dogService" class="com.github.test.service.CglibTransactionalDogService" factory-method="newInstance">
-        <constructor-arg>
-            <bean class="com.github.test.service.DogServiceImpl">
-                <constructor-arg ref="dogDao"/>
-            </bean>
-        </constructor-arg>
-        <constructor-arg ref="connectionHolder"/>
-    </bean>-->
-    <bean id="dogService" class="com.github.test.service.DogServiceImpl">
+    <bean id="dogService" class="com.github.test.service.DogService">
         <constructor-arg ref="dogDao"/>
-    </bean>
-    <bean class="com.github.test.service.aspect.TransactionalSpringAspect">
-        <constructor-arg ref="connectionHolder"/>
     </bean>
 
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -42,17 +34,27 @@
         <property name="username" value="sa"/>
         <property name="password" value=""/>
     </bean>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
     <bean id="flyway" class="org.flywaydb.core.Flyway" init-method="migrate">
         <property name="dataSource" ref="dataSource"/>
         <property name="locations" value="flyway"/>
     </bean>
-    <bean name="connectionHolder" class="com.github.test.dao.JdbcConnectionHolder" depends-on="flyway"/>
 
     <beans profile="inmemory-dao">
         <bean name="dogDao" class="com.github.test.dao.InMemoryDogDao"/>
     </beans>
     <beans profile="default,jdbc-dao">
-        <bean name="dogDao" class="com.github.test.dao.JdbcDogDao"/>
+        <bean name="dogDao" class="com.github.test.dao.JdbcDogDao">
+            <constructor-arg ref="jdbcTemplate"/>
+        </bean>
     </beans>
 
 </beans>
