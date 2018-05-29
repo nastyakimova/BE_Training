@@ -1,29 +1,34 @@
 package com.github.test.controller;
 
 import com.github.test.model.Dog;
-import com.github.test.service.TransactionalDogService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.test.service.DogService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
 
+@Slf4j
 @RestController
 public class DogController {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-    private TransactionalDogService dogService;
+    private DogService dogService;
 
-    public DogController(TransactionalDogService dogService) {
+    public DogController(DogService dogService) {
         this.dogService = dogService;
     }
 
     @GetMapping("/dog/{id}")
     public ResponseEntity<Dog> getDog(@PathVariable("id") String dogId) {
-        logger.info("Getting dog with id " + dogId);
+        log.info("Getting dog with id " + dogId);
         Dog dog = dogService.findById(dogId);
         if (dog == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -33,7 +38,7 @@ public class DogController {
 
     @GetMapping("/dog")
     public ResponseEntity<List<Dog>> getAllDogs() {
-        logger.info("Getting all dogs");
+        log.info("Getting all dogs");
         return new ResponseEntity<>(dogService.findAllDogs(), HttpStatus.OK);
     }
 
@@ -41,9 +46,9 @@ public class DogController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Dog> createDog(final @Valid @RequestBody Dog dog) {
-        logger.info("Creating new dog: " + dog.toString());
+        log.info("Creating new dog: " + dog.toString());
         if (dogService.findById(dog.getId()) != null) {
-            logger.info("Dog " + dog.toString() + " already exist");
+            log.info("Dog " + dog.toString() + " already exist");
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         return new ResponseEntity<>(dogService.saveDog(dog), HttpStatus.CREATED);
@@ -52,10 +57,10 @@ public class DogController {
     @PutMapping(path = "/dog/{id}", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Dog> updateDog(@PathVariable("id") String dogId, final @Valid @RequestBody Dog dog) {
-        logger.info("Updating dog with id " + dogId);
+        log.info("Updating dog with id " + dogId);
         Dog updatedDog = dogService.updateDog(dogId, dog);
         if (updatedDog == null) {
-            logger.info("Dog with id " + dogId + " doesn't exist");
+            log.info("Dog with id " + dogId + " doesn't exist");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(updatedDog, HttpStatus.OK);
@@ -63,9 +68,9 @@ public class DogController {
 
     @DeleteMapping("/dog/{id}")
     public ResponseEntity<Dog> deleteDog(@PathVariable("id") String dogId) {
-        logger.info("Deleting dog with id " + dogId);
+        log.info("Deleting dog with id " + dogId);
         if (!dogService.deleteDog(dogId)) {
-            logger.info("Dog with id " + dogId + " not found");
+            log.info("Dog with id " + dogId + " not found");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
