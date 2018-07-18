@@ -15,10 +15,9 @@ import static io.qala.datagen.RandomShortApi.alphanumeric;
 import static org.testng.Assert.*;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
-@Test
-@ActiveProfiles("jdbc-dao")
 @ContextConfiguration("classpath:/application-context.xml")
-public class JdbcDogDaoTest extends AbstractTestNGSpringContextTests {
+@ActiveProfiles("hibernate-dao")
+public class HibernateDogDaoTest extends AbstractTestNGSpringContextTests {
     @Autowired
     private DogDao dogDao;
 

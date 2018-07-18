@@ -9,9 +9,6 @@ import java.util.List;
 public class DogService {
     private DogDao dogDao;
 
-    public DogService() {
-    }
-
     public DogService(DogDao dogDao) {
         this.dogDao = dogDao;
     }
